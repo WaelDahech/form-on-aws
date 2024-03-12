@@ -124,21 +124,29 @@
               // File input element
               const fileInput = document.getElementById("file");
               const file = fileInput.files[0];
+              if (signedUrl == "already_exist") {
+                document.getElementById("responseText").textContent =
+                  "لقد قمتم بالمشاركة عبر هذا البريد الالكتروني";
+                document.getElementById("responseMessage").style.display =
+                  "block";
+                throw new Error("user_already_exists");
+              }
               document.getElementById("responseText").textContent =
                 "جاري تحميل الفيديو ... الرجاء عدم اغلاق الاستمارة";
               document.getElementById("responseMessage").style.display =
                 "block";
-              return uploadFile(file, signedUrl);
+              return signedUrl;
             })
-            .then(function (response) {
-              console.log("rr", response);
-              if (response.ok) {
-                return response.text();
-              } else {
-                console.log("rrr", response);
-                throw new Error("Network response was not ok.");
-              }
-              console.log("rr", response);
+            .then(function (url) {
+              const fileInput = document.getElementById("file");
+              const file = fileInput.files[0];
+              return fetch(url, {
+                method: "PUT",
+                body: file,
+                headers: {
+                  "Content-Type": file.type,
+                },
+              });
             })
             .then(function (data) {
               document.getElementById("responseText").textContent =
@@ -148,10 +156,19 @@
             })
             .catch(function (error) {
               console.error("Error:", error);
-              document.getElementById("responseText").textContent =
-                "حدث خطأ أثناء رفع النموذج. الرجاء المحاولة مرة أخرى.";
-              document.getElementById("responseMessage").style.display =
-                "block";
+              if (error.message === "user_already_exists") {
+                console.log("inside");
+                document.getElementById("responseText").textContent =
+                  "لقد قمتم بالمشاركة عبر هذا البريد الالكتروني";
+                document.getElementById("responseMessage").style.display =
+                  "block";
+              } else {
+                console.log("othere");
+                document.getElementById("responseText").textContent =
+                  "حدث خطأ أثناء رفع النموذج. الرجاء المحاولة مرة أخرى.";
+                document.getElementById("responseMessage").style.display =
+                  "block";
+              }
             });
         });
     </script>
