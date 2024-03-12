@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="normalize.css" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <title>سمعني كتاب</title>
+  </head>
+  <body dir="rtl">
+    <h1>مسابقة سمعني كتاب</h1>
+
+    <form
+      action="https://back-form.waeldahech.com/upload/"
+      method="POST"
+      id="uploadForm"
+    >
+      <label for="name"> اسم المشارك أو المشاركة : </label>
+      <input type="text" id="name" name="name" required /><br /><br />
+
+      <label for="surname"> لقب المشارك أو المشاركة : </label>
+
+      <input type="text" id="surname" name="surname" required /><br /><br />
+
+      <label for="age">العمر:</label>
+      <input type="number" id="age" name="age" required /><br /><br />
+
+      <label for="email">البريد الإلكتروني:</label>
+      <input type="email" id="email" name="email" required /><br /><br />
+      <label for="phone"> رقم الهاتف : </label>
+
+      <input type="tel" id="phone" name="phone" />
+
+      <label for="state">الولاية:</label>
+      <input type="text" id="state" name="state" required /><br /><br />
+      <label for="city"> المعتمدية: </label>
+      <input type="text" id="city" name="city" required /><br /><br />
+      <label for="video"> تحميل فيديو المشاركة : </label>
+      <input
+        type="file"
+        id="file"
+        name="audio"
+        accept="audio/*, video/*"
+        required
+      /><br /><br />
+
+      <br /><br />
+
+      <button type="submit">إرسال</button>
+    </form>
+    <div id="responseMessage" style="display: none; margin-top: 20px">
+      <p id="responseText"></p>
+    </div>
+
+    <script>
+      function uploadFile(file, signedUrl) {
+        fetch(signedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log("File uploaded successfully");
+            } else {
+              console.error("Failed to upload file:", response.statusText);
+            }
+          })
+          .catch((error) => {
+            console.error("Error uploading file:", error);
+          });
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var form = event.target;
+          var data = {
+            name: document.getElementById("name").value,
+            surname: document.getElementById("surname").value,
+            age: document.getElementById("age").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            state: document.getElementById("state").value,
+            city: document.getElementById("city").value,
+          };
+          var fileInput = document.getElementById("file");
+          if (fileInput.files.length > 0) {
+            var filename = fileInput.files[0].name;
+            data.filename = filename;
+          }
+
+          console.log("data", data);
+          fetch(form.action, {
+            method: "POST",
+
+            headers: {
+              // Set content type to the correct type for binary data
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then(function (response) {
+              if (response.ok) {
+                return response.text();
+              } else {
+                console.log("rrr", response);
+                throw new Error("Network response was not ok.");
+              }
+              console.log("rr", response);
+            })
+            .then((data) => {
+              console.log("response", data);
+              console.log("type", typeof data);
+              const urlBody = JSON.parse(data);
+
+              const signedUrl = urlBody.url;
+              console.log("url", signedUrl);
+              // File input element
+              const fileInput = document.getElementById("file");
+              const file = fileInput.files[0];
+              document.getElementById("responseText").textContent =
+                "جاري تحميل الفيديو ... الرجاء عدم اغلاق الاستمارة";
+              document.getElementById("responseMessage").style.display =
+                "block";
+              return uploadFile(file, signedUrl);
+            })
+            .then(function (response) {
+              console.log("rr", response);
+              if (response.ok) {
+                return response.text();
+              } else {
+                console.log("rrr", response);
+                throw new Error("Network response was not ok.");
+              }
+              console.log("rr", response);
+            })
+            .then(function (data) {
+              document.getElementById("responseText").textContent =
+                "تم رفع النموذج بنجاح.";
+              document.getElementById("responseMessage").style.display =
+                "block";
+            })
+            .catch(function (error) {
+              console.error("Error:", error);
+              document.getElementById("responseText").textContent =
+                "حدث خطأ أثناء رفع النموذج. الرجاء المحاولة مرة أخرى.";
+              document.getElementById("responseMessage").style.display =
+                "block";
+            });
+        });
+    </script>
+  </body>
+</html>
