@@ -5,55 +5,662 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="normalize.css" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="logo.png" />
 
     <title>سمعني كتاب</title>
   </head>
   <body dir="rtl">
-    <h1>مسابقة سمعني كتاب</h1>
+    <img class="banner-image" src="banner.png" alt="Banner Image" />
 
-    <form
-      action="https://back-form.waeldahech.com/upload/"
-      method="POST"
-      id="uploadForm"
-    >
-      <label for="name"> اسم المشارك أو المشاركة : </label>
-      <input type="text" id="name" name="name" required /><br /><br />
+    <div class="form-background">
+      <form
+        action="https://back-form.waeldahech.com/upload/"
+        method="POST"
+        id="uploadForm"
+        class="form-container"
+      >
+        <label for="name"> اسم المشارك أو المشاركة : </label>
+        <input type="text" id="name" name="name" required /><br /><br />
 
-      <label for="surname"> لقب المشارك أو المشاركة : </label>
+        <label for="surname"> لقب المشارك أو المشاركة : </label>
 
-      <input type="text" id="surname" name="surname" required /><br /><br />
+        <input type="text" id="surname" name="surname" required /><br /><br />
 
-      <label for="age">العمر:</label>
-      <input type="number" id="age" name="age" required /><br /><br />
+        <label for="age">العمر:</label>
+        <input type="number" id="age" name="age" required /><br /><br />
 
-      <label for="email">البريد الإلكتروني:</label>
-      <input type="email" id="email" name="email" required /><br /><br />
-      <label for="phone"> رقم الهاتف : </label>
+        <label for="email">البريد الإلكتروني:</label>
+        <input type="email" id="email" name="email" required /><br /><br />
+        <label for="phone"> رقم الهاتف : </label>
 
-      <input type="tel" id="phone" name="phone" />
+        <input type="tel" id="phone" name="phone" required />
+        <label for="state">الولاية:</label>
 
-      <label for="state">الولاية:</label>
-      <input type="text" id="state" name="state" required /><br /><br />
-      <label for="city"> المعتمدية: </label>
-      <input type="text" id="city" name="city" required /><br /><br />
-      <label for="video"> تحميل فيديو المشاركة : </label>
-      <input
-        type="file"
-        id="file"
-        name="audio"
-        accept="audio/*, video/*"
-        required
-      /><br /><br />
+        <select id="state" onchange="populateDelegations()">
+          <option value="">اختر الولاية</option>
+        </select>
+        <br />
+        <label for="city"> المعتمدية: </label>
+        <select id="city">
+          <option value="">اختر المعتمدية</option>
+        </select>
 
-      <br /><br />
+        <label for="video"> تحميل فيديو المشاركة : </label>
+        <input
+          type="file"
+          id="file"
+          name="audio"
+          accept="audio/*, video/*"
+          required
+        /><br /><br />
+        <div class="form-group file-area">
+          <label for="images"
+            >Images
+            <span>Your images should be at least 400x300 wide</span></label
+          >
+          <input
+            type="file"
+            name="images"
+            id="images"
+            required="required"
+            multiple="multiple"
+          />
+          <div class="file-dummy">
+            <div class="success">Great, your files are selected. Keep on.</div>
+            <div class="default">Please select some files</div>
+          </div>
+        </div>
 
-      <button type="submit">إرسال</button>
-    </form>
+        <br /><br />
+
+        <button type="submit">إرسال</button>
+      </form>
+    </div>
+
     <div id="responseMessage" style="display: none; margin-top: 20px">
       <p id="responseText"></p>
     </div>
 
     <script>
+      var data = [
+        {
+          Gouvernorat: "تونس",
+          Nbre: "21",
+          Délégations: [
+            "قرطاج",
+            "المدينة",
+            "باب البحر",
+            "باب سويقة",
+            "العمران",
+            "العمران الأعلى",
+            "التحرير",
+            "المنزه",
+            "حي الخضراء",
+            "باردو",
+            "السيجومي",
+            "الزهور",
+            "الحرائرية",
+            "سيدي حسين",
+            "الوردية",
+            "الكبارية",
+            "سيدي البشير",
+            "جبل الجلود",
+            "حلق الوادي",
+            "الكرم",
+            "المرسى",
+          ],
+        },
+        {
+          Gouvernorat: "أريانة",
+          Nbre: "7",
+          Délégations: [
+            "أريانة المدينة",
+            "سكرة",
+            "رواد",
+            "قلعة الأندلس",
+            "سيدي ثابت",
+            "حي التضامن",
+            "المنيهلة",
+          ],
+        },
+        {
+          Gouvernorat: "منوبة",
+          Nbre: "8",
+          Délégations: [
+            "منوبة",
+            "وادي الليل",
+            "طبربة",
+            "البطان",
+            "الجديدة",
+            "المرناقية",
+            "برج العامري",
+            "دوار هيشر",
+          ],
+        },
+        {
+          Gouvernorat: "بن عروس",
+          Nbre: "12",
+          Délégations: [
+            "بن عروس",
+            "المدينة الجديدة",
+            "المروج",
+            "حمام الأنف",
+            "حمام الشط",
+            "بومهل البساتين",
+            "الزهراء",
+            "رادس",
+            "مقرين",
+            "المحمدية",
+            "فوشانة",
+            "مرناق",
+          ],
+        },
+        {
+          Gouvernorat: "نابل",
+          Nbre: "16",
+          Délégations: [
+            "نابل",
+            "دار شعبان الفهري",
+            "بني خيار",
+            "قربة",
+            "منزل تميم",
+            "الميدة",
+            "قليبية",
+            "حمام الأغزاز",
+            "الهوارية",
+            "تاكلسة",
+            "سليمان",
+            "منزل بوزلفة",
+            "بني خلاد",
+            "قرمبالية",
+            "بوعرقوب",
+            "الحمامات",
+          ],
+        },
+        {
+          Gouvernorat: "بنزرت",
+          Nbre: "14",
+          Délégations: [
+            "بنزرت الشمالية",
+            "جرزونة",
+            "بنزرت الجنوبية",
+            "سجنان",
+            "جومين",
+            "ماطر",
+            "غزالة",
+            "منزل بورقيبة",
+            "تينجة",
+            "أوتيك",
+            "غار الملح",
+            "منزل جميل",
+            "العالية",
+            "رأس الجبل",
+          ],
+        },
+        {
+          Gouvernorat: "زغوان",
+          Nbre: "6",
+          Délégations: [
+            "زغوان",
+            "الزريبة",
+            "بئر مشارقة",
+            "الفحص",
+            "الناظور",
+            "صواف",
+          ],
+        },
+        {
+          Gouvernorat: "سوسة",
+          Nbre: "16",
+          Délégations: [
+            "سوسة المدينة",
+            "الزاوية القصيبة الثريات",
+            "سوسة الرياض",
+            "سوسة جوهرة",
+            "سوسة سيدي عبد الحميد",
+            "حمام سوسة",
+            "أكودة",
+            "القلعة الكبرى",
+            "سيدي بوعلي",
+            "هرقلة",
+            "النفيضة",
+            "بوفيشة",
+            "كندار",
+            "سيدي الهاني",
+            "مساكن",
+            "القلعة الصغرى",
+          ],
+        },
+        {
+          Gouvernorat: "المنستير",
+          Nbre: "13",
+          Délégations: [
+            "المنستيـر",
+            "الوردانيـن",
+            "الساحليـن",
+            "زرمديـن",
+            "بنـي حسان",
+            "جمـال",
+            "بنبلة",
+            "المكنين",
+            "البقالطة",
+            "طبلبة",
+            "قصر هلال",
+            "قصيبة المديوني",
+            "صيادة لمطة بوحجر",
+          ],
+        },
+        {
+          Gouvernorat: "المهدية",
+          Nbre: "11",
+          Délégations: [
+            "المهدية",
+            "بومرداس",
+            "أولاد الشامخ",
+            "شربان",
+            "هبيرة",
+            "السواسي",
+            "الجم",
+            "الشابة",
+            "ملولش",
+            "سيدي علوان",
+            "قصور الساف",
+          ],
+        },
+        {
+          Gouvernorat: "صفاقس",
+          Nbre: "16",
+          Délégations: [
+            "صفاقـس المدينة",
+            "صفاقـس الغربية",
+            "ساقية الزيت",
+            "ساقية الداير",
+            "صفاقس الجنوبية",
+            "طينة",
+            "عقارب",
+            "جبنيانة",
+            "العامرة",
+            "الحنشة",
+            "منزل شاكر",
+            "الغريبة",
+            "بئر علي بن خليفة",
+            "الصخيرة",
+            "المحرس",
+            "قـرقنـة",
+          ],
+        },
+        {
+          Gouvernorat: "باجة",
+          Nbre: "9",
+          Délégations: [
+            "باجة الشمالية",
+            "باجة الجنوبية",
+            "عمدون",
+            "نفزة",
+            "تبرسق",
+            "تيبار",
+            "تستور",
+            "قبلاط",
+            "مجاز الباب",
+          ],
+        },
+        {
+          Gouvernorat: "جندوبة",
+          Nbre: "9",
+          Délégations: [
+            "جنـدوبة",
+            "جنـدوبة الشمالية",
+            "بوسالم",
+            "طبرقـة",
+            "عين دراهم",
+            "فرنانة",
+            "غار الدماء",
+            "وادي مليز",
+            "بلطة بوعوان",
+          ],
+        },
+        {
+          Gouvernorat: "الكاف",
+          Nbre: "11",
+          Délégations: [
+            "الكاف الغربية",
+            "الكاف الشرقية",
+            "نبـر",
+            "ساقية سيدي يوسف",
+            "تاجروين",
+            "قلعة سنان",
+            "القلعة الخصبة",
+            "الجريصة",
+            "القصور",
+            "الدهماني",
+            "السرس",
+          ],
+        },
+        {
+          Gouvernorat: "سليانة",
+          Nbre: "11",
+          Délégations: [
+            "سليانة الشمالية",
+            "سليانة الجنوبية",
+            "بوعرادة",
+            "قعفور",
+            "العروسة",
+            "الكريب",
+            "بورويس",
+            "مكثر",
+            "الروحية",
+            "كسرى",
+            "برقو",
+          ],
+        },
+        {
+          Gouvernorat: "القيروان",
+          Nbre: "11",
+          Délégations: [
+            "القيروان الشمالية",
+            "القيروان الجنوبية",
+            "الشبيكة",
+            "السبيخة",
+            "الوسلاتية",
+            "حفوز",
+            "العلا",
+            "حاجب العيون",
+            "نصر الله",
+            "الشراردة",
+            "بوحجلة",
+          ],
+        },
+        {
+          Gouvernorat: "سيدي بوزيد",
+          Nbre: "12",
+          Délégations: [
+            "سيدي بوزيد الغربية",
+            "سيدي بوزيد الشرقية",
+            "جلمة",
+            "سبالة أولاد عسكر",
+            "بئر الحفي",
+            "سيدي علي بن عون",
+            "منزل بوزيان",
+            "المكناسي",
+            "سوق الجديد",
+            "المزونة",
+            "الرقاب",
+            "أولاد حفوز",
+          ],
+        },
+        {
+          Gouvernorat: "القصرين",
+          Nbre: "13",
+          Délégations: [
+            "القصرين الشمالية",
+            "القصرين الجنوبية",
+            "الزهور",
+            "حاسي الفريد",
+            "سبيطلة",
+            "سبيبة",
+            "جدليان",
+            "العيون",
+            "تالة",
+            "حيدرة",
+            "فوسانة",
+            "فريانة",
+            "ماجل بلعباس",
+          ],
+        },
+        {
+          Gouvernorat: "قابس",
+          Nbre: "10",
+          Délégations: [
+            "قابـس المدينة",
+            "قابـس الغربية",
+            "قابـس الجنوبية",
+            "غنوش",
+            "المطوية",
+            "منزل الحبيب",
+            "الحامة",
+            "مطماطة",
+            "مطماطة الجديدة",
+            "مارث",
+          ],
+        },
+        {
+          Gouvernorat: "مدنين",
+          Nbre: "9",
+          Délégations: [
+            "مدنيـن الشمالية",
+            "مدنين الجنوبية",
+            "بني خداش",
+            "بن قردان",
+            "جرجيس",
+            "جربة حومة السوق",
+            "جربة ميدون",
+            "جربة أجيم",
+            "سيدي مخلوف",
+          ],
+        },
+        {
+          Gouvernorat: "قفصة",
+          Nbre: "11",
+          Délégations: [
+            "قفصة الشمالية",
+            "سيدي عيش",
+            "القصر",
+            "قفصة الجنوبية",
+            "أم العرائس",
+            "الرديف",
+            "المتلوي",
+            "المظيلة",
+            "القطار",
+            "بلخير",
+            "السند",
+          ],
+        },
+        {
+          Gouvernorat: "توزر",
+          Nbre: "5",
+          Délégations: ["توزر", "دقاش", "تمغزة", "نفطة", "حزوة"],
+        },
+        {
+          Gouvernorat: "تطاوين",
+          Nbre: "7",
+          Délégations: [
+            "تطاوين الشمالية",
+            "تطاوين الجنوبية",
+            "الصمار",
+            "البئر الأحمر",
+            "غمراسن",
+            "ذهيبة",
+            "رمادة",
+          ],
+        },
+        {
+          Gouvernorat: "قبلي",
+          Nbre: "6",
+          Délégations: [
+            "قبلي الجنوبية",
+            "قبلي الشمالية",
+            "سوق الأحد",
+            "دوز الشمالية",
+            "دوز الجنوبية",
+            "الفوار",
+          ],
+        },
+      ];
+
+      // var data = [
+      //   {
+      //     Délégations:
+      //       "Carthage – La Médina – Bab Bhar – Bab Souika – Omrane – Omrane Supérieur – Attahrir – El Menzah – Cité Alkhadhra – Bardo – Séjoumi – Azzouhour – Alhrairia – Sidi Hsine – Ouardia – Kabaria – Sidi Elbéchir – Jebel Jelloud – La Goulette – Le Kram – La Marsa.",
+      //     Nbre: "21",
+      //     Gouvernorat: "Tunis",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Ariana Ville – Soukra – Raouède – Kalâat Andalous – Sidi Thabet – Cité Attadhamon – M’nihla.",
+      //     Nbre: "7",
+      //     Gouvernorat: "Ariana",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Manouba – Oued Ellil –Tebourba – Battan – Jedaida – Mornaguia – Borj Amri – Douar Hicher.",
+      //     Nbre: "8",
+      //     Gouvernorat: "Manouba",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Ben Arous – Nouvelle Médina – Mourouj – Hammam Lif – Hammam Chatt – Boumhel Bassatine – Ezzahra – Radès – Megrine – M’hamdia – Fouchana – Mornag.",
+      //     Nbre: "12",
+      //     Gouvernorat: "Ben Arous",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Nabeul – Dar Chaâbane Elfehri – Béni Khiar – Korba – Menzel Temime – Mida – Kelibia – Hammam Ghezaz – Haouaria – Takelsa – Slimane – Menzel Bouzelfa – Béni Khalled – Grombalia – Bouârgoub – Hammamet.",
+      //     Nbre: "16",
+      //     Gouvernorat: "Nabeul",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Bizerte Nord – Jarzouna – Bizerte Sud – Sejnane – Joumine – Mateur – Ghezala – Menzel Bourguiba – Tinja – Utique – Ghar El Melh – Menzel Jemil – El Alia – Ras Jebel.",
+      //     Nbre: "14",
+      //     Gouvernorat: "Bizerte",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Zaghouan – Zériba – Bir Mecharga – Fahs – Nadhour – Saouaf.",
+      //     Nbre: "6",
+      //     Gouvernorat: "Zaghouan",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Sousse Ville – Zaouia Ksiba Thrayat – Sousse Ryadh – Sousse Jawhara – Sousse Sidi Abdelhamid – Hammam sousse – Akouda – Kalâa Elkébira – Sidi Bouali – Hergla – Enfidha – Bouficha – Koundar – Sidi Elheni – Msaken – Kalâa Ességhira.",
+      //     Nbre: "16",
+      //     Gouvernorat: "Sousse",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Monastir – Ouerdanine – Sahline – Zéramdine – Béni Hassan – Jammel – Benbla – Moknine – Bekalta – Teboulba – Ksar Helal – Ksibet Medyouni – Sayada Lamta Bouhjar.",
+      //     Nbre: "13",
+      //     Gouvernorat: "Monastir",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Mahdia – Boumerdes – Ouled Chamekh – Chorbane – Hbira – Souassi – Eljem – Chebba – Malloulech – Sidi Alouane – Ksour Essef.",
+      //     Nbre: "11",
+      //     Gouvernorat: "Mahdia",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Sfax Ville – Sfax Ouest – Sakiet Ezzit – Sakiet Eddaier – Sfax sud – Tina – Agareb – Jebeniana –El Amra – El Hencha –Menzel chaker – Ghraiba – Bir Ali Ben Khelifa – Sekhira – Mahrès – Kerkennah.",
+      //     Nbre: "16",
+      //     Gouvernorat: "Sfax",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Béja nord – Béja sud – Amdoun – Nefza – Teboursouk – Tibar – Testour – Goubellat – Mejez El Bab.",
+      //     Nbre: "9",
+      //     Gouvernorat: "Béja",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Jendouba – Jendouba Nord – Boussalem – Tabarka – Ain Drahem – Fernana – Ghardimaou – Oued Mliz – Balta Bouaouene.",
+      //     Nbre: "9",
+      //     Gouvernorat: "Jendouba",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Kef Ouest – Kef Est – Nebeur – Sakiet Sidi Youssef – Tejerouine – Kalâat sinane – Kalâa El khasba – Jerissa – Gsour – Dahmani – Le Sers.",
+      //     Nbre: "11",
+      //     Gouvernorat: "Kef",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Siliana nord – Siliana sud – Bouarada –Gâafour – El Aroussa – Le Krib – Bourouis – Makther – Rouhia – Kesra – Bargou.",
+      //     Nbre: "11",
+      //     Gouvernorat: "Siliana",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Kairouan Nord –Kairouan Sud – Chebika – Sebikha – Oueslatia – Haffouz – El Ala – Hajeb El Ayoun – Nasrallah – Cherarda – Bouhajla.",
+      //     Nbre: "11",
+      //     Gouvernorat: "Kairouan",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Sidi Bouzid Ouest – Sidi Bouzid Est – Jelma – Sabbalet Ouled Askar – Bir Hfay – Sidi Ali Benôun - Menzel Bouzayane – Meknassi – Souk Jedid – Mezouna – Regueb – Ouled Haffouz.",
+      //     Nbre: "12",
+      //     Gouvernorat: "Sidi Bouzid",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Kasserine Nord – Kasserine Sud – Azzouhour – Hassi ferid – Sbitla – Sbiba – Jedliane – El Ayoun – Tela – Hidra – Foussana – Feriana – Mejel Bel Abbes.",
+      //     Nbre: "13",
+      //     Gouvernorat: "Kasserine",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Gabès ville – Gabès ouest – Gabès sud – Ghannouch – Metouia – Menzel habib – Hamma – Matmata – Matmata nouvelle – Mareth.",
+      //     Nbre: "10",
+      //     Gouvernorat: "Gabès",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Mednine Nord – Mednine Sud – Béni khedach – Ben Guerdene – Zazis – Jerba Houmet Souk – Jerba Midoun – Jerba Ajim – Sidi Makhlouf.",
+      //     Nbre: "9",
+      //     Gouvernorat: "Medenine",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Gafsa Nord – Sidi Aich – El Ksar – Gafsa Sud – Moulares – Redyef – Métlaoui – El Mdhilla – El Guettar – Belkhir – Sned.",
+      //     Nbre: "11",
+      //     Gouvernorat: "Gafsa",
+      //   },
+      //   {
+      //     Délégations: "Tozeur – Degueche – Tameghza – Nefta – Hezoua.",
+      //     Nbre: "5",
+      //     Gouvernorat: "Tozeur",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Tataouine Nord – Tataouine Sud – Smar – Bir Lahmer – Ghomrassen – Dhehiba – Remada.",
+      //     Nbre: "7",
+      //     Gouvernorat: "Tataouine",
+      //   },
+      //   {
+      //     Délégations:
+      //       "Kébili Sud – Kébili Nord – Souk El Ahad – Douz nord – Douz sud – El Faouar.",
+      //     Nbre: "6",
+      //     Gouvernorat: "Kébili",
+      //   },
+      // ];
+
+      // Populate Governorate Dropdown
+      var governorateDropdown = document.getElementById("state");
+      for (var i = 0; i < data.length; i++) {
+        var option = document.createElement("option");
+        option.text = data[i].Gouvernorat;
+        option.value = data[i].Gouvernorat;
+        governorateDropdown.add(option);
+      }
+
+      // Function to populate Delegation Dropdown
+      function populateDelegations() {
+        var selectedGovernorate = document.getElementById("state").value;
+        var delegationDropdown = document.getElementById("city");
+        delegationDropdown.innerHTML =
+          '<option value="">اختر المعتمدية</option>';
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].Gouvernorat === selectedGovernorate) {
+            var delegations = data[i].Délégations;
+            for (var j = 0; j < delegations.length; j++) {
+              var option = document.createElement("option");
+              option.text = delegations[j];
+              option.value = delegations[j];
+              delegationDropdown.add(option);
+            }
+            break; // Stop searching once governorate is found
+          }
+        }
+      }
       function uploadFile(file, signedUrl) {
         fetch(signedUrl, {
           method: "PUT",
