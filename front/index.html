@@ -12,9 +12,9 @@
   <body dir="rtl">
     <img class="banner-image" src="banner.png" alt="Banner Image" />
 
-    <div class="form-background">
+    <div id="form-background" class="form-background">
       <form
-        action="https://back-form.waeldahech.com/upload/"
+        action="https://4s8n48tmmj.execute-api.eu-central-1.amazonaws.com/dev/upload/"
         method="POST"
         id="uploadForm"
         class="form-container"
@@ -31,17 +31,24 @@
 
         <label for="email">البريد الإلكتروني:</label>
         <input type="email" id="email" name="email" required /><br /><br />
+        <span id="emailError" class="error"></span><br />
+
         <label for="phone"> رقم الهاتف : </label>
 
         <input type="tel" id="phone" name="phone" required />
         <label for="state">الولاية:</label>
 
-        <select id="state" onchange="populateDelegations()">
+        <select
+          required
+          class="arabic-select"
+          id="state"
+          onchange="populateDelegations()"
+        >
           <option value="">اختر الولاية</option>
         </select>
         <br />
         <label for="city"> المعتمدية: </label>
-        <select id="city">
+        <select required class="arabic-select" id="city">
           <option value="">اختر المعتمدية</option>
         </select>
 
@@ -53,11 +60,7 @@
           accept="audio/*, video/*"
           required
         /><br /><br />
-        <div class="form-group file-area">
-          <label for="images"
-            >Images
-            <span>Your images should be at least 400x300 wide</span></label
-          >
+        <!-- <div class="form-group file-area">
           <input
             type="file"
             name="images"
@@ -67,18 +70,20 @@
           />
           <div class="file-dummy">
             <div class="success">Great, your files are selected. Keep on.</div>
-            <div class="default">Please select some files</div>
+            <div class="default">تحميل فيديو المشاركة</div>
           </div>
-        </div>
+        </div> -->
 
         <br /><br />
 
-        <button type="submit">إرسال</button>
+        <button class="submit" type="submit">إرسال</button>
       </form>
-    </div>
-
-    <div id="responseMessage" style="display: none; margin-top: 20px">
-      <p id="responseText"></p>
+      <div
+        id="responseMessage"
+        style="display: none; margin-top: 5px; margin-bottom: 20px"
+      >
+        <p id="responseText"></p>
+      </div>
     </div>
 
     <script>
@@ -671,7 +676,6 @@
         })
           .then((response) => {
             if (response.ok) {
-              console.log("File uploaded successfully");
             } else {
               console.error("Failed to upload file:", response.statusText);
             }
@@ -681,10 +685,40 @@
           });
       }
 
+      var emailInput = document.getElementById("email");
+      var emailError = document.getElementById("emailError");
+
+      emailInput.addEventListener("blur", function (event) {
+        validateEmail();
+      });
+
+      function validateEmail() {
+        var email = emailInput.value.trim();
+
+        if (!isValidEmail(email)) {
+          emailError.textContent = "عنوان البريد الإلكتروني غير صالح";
+          emailInput.focus();
+          return false;
+        } else {
+          emailError.textContent = "";
+          return true;
+        }
+      }
+
+      function isValidEmail(email) {
+        // Regular expression for basic email validation
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+      }
+
       document
         .getElementById("uploadForm")
         .addEventListener("submit", function (event) {
           event.preventDefault();
+          if (!validateEmail()) {
+            event.preventDefault();
+            return;
+          }
 
           var form = event.target;
           var data = {
@@ -702,7 +736,6 @@
             data.filename = filename;
           }
 
-          console.log("data", data);
           fetch(form.action, {
             method: "POST",
 
@@ -716,32 +749,29 @@
               if (response.ok) {
                 return response.text();
               } else {
-                console.log("rrr", response);
                 throw new Error("Network response was not ok.");
               }
-              console.log("rr", response);
             })
             .then((data) => {
-              console.log("response", data);
-              console.log("type", typeof data);
               const urlBody = JSON.parse(data);
 
               const signedUrl = urlBody.url;
-              console.log("url", signedUrl);
               // File input element
               const fileInput = document.getElementById("file");
               const file = fileInput.files[0];
               if (signedUrl == "already_exist") {
                 document.getElementById("responseText").textContent =
-                  "لقد قمتم بالمشاركة عبر هذا البريد الالكتروني";
+                  "لا يمكنكم إرسال أكثر من مشاركة لمشترك واحد";
                 document.getElementById("responseMessage").style.display =
                   "block";
+                document.getElementById("responseMessage").style.color = "red";
                 throw new Error("user_already_exists");
               }
               document.getElementById("responseText").textContent =
                 "جاري تحميل الفيديو ... الرجاء عدم اغلاق الاستمارة";
               document.getElementById("responseMessage").style.display =
                 "block";
+              document.getElementById("responseMessage").style.color = "orange";
               return signedUrl;
             })
             .then(function (url) {
@@ -756,21 +786,25 @@
               });
             })
             .then(function (data) {
+              var element = document.getElementById("uploadForm");
+              if (element) {
+                element.parentNode.removeChild(element);
+              }
+              document.getElementById("form-background").style.background =
+                null;
               document.getElementById("responseText").textContent =
-                "تم رفع النموذج بنجاح.";
+                "لقد تم تسجيل مشاركتم بنجاح";
               document.getElementById("responseMessage").style.display =
                 "block";
+              document.getElementById("responseMessage").style.color = "red";
             })
             .catch(function (error) {
-              console.error("Error:", error);
               if (error.message === "user_already_exists") {
-                console.log("inside");
                 document.getElementById("responseText").textContent =
-                  "لقد قمتم بالمشاركة عبر هذا البريد الالكتروني";
+                  "لا يمكنكم إرسال أكثر من مشاركة لمشترك واحد";
                 document.getElementById("responseMessage").style.display =
                   "block";
               } else {
-                console.log("othere");
                 document.getElementById("responseText").textContent =
                   "حدث خطأ أثناء رفع النموذج. الرجاء المحاولة مرة أخرى.";
                 document.getElementById("responseMessage").style.display =
